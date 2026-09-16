@@ -1,0 +1,172 @@
+/* ==========================================================================
+   Al-Wesam Al-Dhahabi Sovereign Luxury Design System CSS
+   Adheres to DESIGN.md Tokens & Color Specifications
+   ========================================================================== */
+
+:root {
+  --color-primary: #0b3c2a;
+  --color-primary-container: #002517;
+  --color-secondary: #c59b27;
+  --color-secondary-dark: #775a00;
+  --color-secondary-container: #fece57;
+  --color-surface: #faf8f5;
+  --color-surface-container: #f5f3f0;
+  --color-surface-white: #ffffff;
+  --color-text-charcoal: #1f2421;
+  --color-text-muted: #717973;
+  --gold-border-glow: rgba(197, 155, 39, 0.22);
+}
+
+html {
+  scroll-behavior: smooth;
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  direction: rtl;
+  background-color: var(--color-surface);
+  color: var(--color-text-charcoal);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: var(--color-surface);
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f5f3f0;
+}
+::-webkit-scrollbar-thumb {
+  background: #0b3c2a;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #c59b27;
+}
+
+/* Sovereign Geometric Arabesque Watermark Overlay */
+.bg-arabesque-pattern {
+  background-image: radial-gradient(rgba(11, 60, 42, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Luxury Golden Hairline Delineation */
+.gold-hairline-border {
+  border: 1px solid var(--gold-border-glow);
+}
+
+.gold-accent-gradient {
+  background: linear-gradient(135deg, #c59b27 0%, #fece57 50%, #c59b27 100%);
+}
+
+.royal-emerald-gradient {
+  background: linear-gradient(135deg, #0b3c2a 0%, #002517 100%);
+}
+
+/* Gold Frame Corners Accent */
+.gold-frame-corner {
+  position: relative;
+}
+.gold-frame-corner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  border-top: 2px solid #c59b27;
+  border-right: 2px solid #c59b27;
+  pointer-events: none;
+}
+.gold-frame-corner::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  border-bottom: 2px solid #c59b27;
+  border-left: 2px solid #c59b27;
+  pointer-events: none;
+}
+
+/* Accordion Smooth Transitions */
+details summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Modal Overlay backdrop */
+.modal-backdrop {
+  background-color: rgba(11, 60, 42, 0.65);
+  backdrop-filter: blur(8px);
+}
+
+/* Print Optimization for Application Receipts & Summaries */
+@media print {
+  header, footer, .no-print, aside {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .printable-area {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+  }
+}
+
+/* Micro Animations */
+@keyframes goldPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(197, 155, 39, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(197, 155, 39, 0);
+  }
+}
+
+.animate-gold-pulse {
+  animation: goldPulse 3s infinite;
+}
+
+/* Toast Notifications */
+#toast-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9999;
+  display: flex;
+  flex-col: column;
+  gap: 0.75rem;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  background: #0b3c2a;
+  color: #fff;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  border-right: 4px solid #c59b27;
+  animation: slideInRight 0.3s ease-out forwards;
+  max-width: 400px;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
