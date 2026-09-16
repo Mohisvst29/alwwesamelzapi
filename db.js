@@ -1,5 +1,14 @@
+require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
+const mongoose = require('mongoose');
+
+// Import Mongoose Models
+const ApplicationModel = require('./models/Application');
+const ArticleModel = require('./models/Article');
+const FaqModel = require('./models/Faq');
+const SiteSettingsModel = require('./models/SiteSettings');
+const ServiceModel = require('./models/Service');
 
 const DB_FILE = path.join(__dirname, 'data.json');
 
@@ -16,9 +25,9 @@ const initialData = {
       partnerNationality: "مصرية",
       partnerResidenceStatus: "مقيمة بالمملكة (إقامة نظامية)",
       details: "يرغب المتقدم في استخراج تصريح زواج رسمي وفق الضوابط مع توثيق العقد عبر محكمة الأحوال وناجز.",
-      status: "processing", // pending, processing, approved, completed, rejected
+      status: "processing",
       statusLabel: "جاري المتابعة بالإمارة",
-      stageStep: 3, // 1 to 4
+      stageStep: 3,
       createdAt: "2026-09-10T10:30:00.000Z",
       updatedAt: "2026-09-13T14:15:00.000Z",
       notes: "تم رفع الملف لإمارة منطقة الرياض وقيد المعاملة برقم 45912، وتنتظر المعالجة الأمنية والأحوال.",
@@ -84,38 +93,7 @@ const initialData = {
       readTime: "6 دقائق",
       image: "saudi_citizenship_and_naturalization_papers_consultation_desk_saudi_passport",
       summary: "شرح مفصل لكيفية احتساب الـ 23 نقطة المطلوبة لمنح الجنسية السعودية، وشروط المؤهلات العلمية، سنوات الإقامة المتصلة، والروابط العائلية.",
-      content: `### مقدمة عن نظام التجنيس في المملكة العربية السعودية
-تعد مسألة الحصول على الجنسية العربية السعودية من أكثر الموضوعات أهمية وحساسية، حيث تخضع لنصوص نظام الجنسية العربية السعودية الصادر بالمرسوم الملكي ولوائحه التنفيذية المحدثة. 
-
-يستند التقييم الأولي لطلبات التجنيس للأجانب والمقيمين إلى نظام النقاط المحتسب من **33 نقطة** وفق **المادة التاسعة** من اللائحة التنفيذية، حيث يشترط لتحويل الملف إلى اللجنة المختصة حصول المتقدم على **23 نقطة على الأقل**.
-
----
-
-### جدول توزيع نقاط التجنيس (المادة 9)
-
-1. **سنوات الإقامة النظامية المتصلة (10 نقاط حد أقصى):**
-   - الإقامة في المملكة لمدة لا تقل عن 10 سنوات متصلة يمنح المتقدم 10 نقاط كاملة.
-   - يلزم تقديم إثبات إقامة سارية المفعول وسجل إقامة خالي من الانقطاعات غير النظامية.
-
-2. **المؤهل العلمي والتخصص الاستثنائي (13 نقطة حد أقصى):**
-   - شهادة الدكتوراه في الطب أو الهندسة أو العلوم التقنية والدقيقة: **13 نقطة**.
-   - شهادة الدكتوراه في التخصصات العلمية الأخرى: **10 نقاط**.
-   - شهادة الماجستير: **8 نقاط**.
-   - شهادة البكالوريوس: **5 نقاط**.
-
-3. **الروابط القرابية والعائلية السعودية (10 نقاط حد أقصى):**
-   - إذا كان الأب سعودياً: **3 نقاط**.
-   - إذا كانت الأم سعودية: **3 نقاط**.
-   - إذا كانت الزوجة سعودية أو والد الزوجة سعودياً: **2 نقطتان**.
-   - إذا كان للمتقدم أبناء وبنات سعوديون: **2 نقطتان**.
-
----
-
-### تجنيس الكفاءات والعلماء والأطباء بموجب الأمر الملكي
-بجانب نظام النقاط العادي، أتاح القرار السامي الكريم منح الجنسية العربية السعودية للكفاءات الاستثنائية والعلماء والخبراء والمبتكرين في مجالات الذكاء الاصطناعي، الطب المتقدم، الطاقة، والتقنية الحديثة، وذلك ترسيخاً لرؤية المملكة 2030.
-
-### دور مكتب الوسام الذهبي في دعم ملفك
-يتولى **المستشار أبو خالد** حصر المؤهلات والشهادات، حساب النقاط بدقة متناهية، صياغة السيرة الإنجازية والتقارير القانونية المؤيدة، ومتابعة القيد لدى الجهات الرسمية لضمان قبول الملف من المرة الأولى.`
+      content: `### مقدمة عن نظام التجنيس في المملكة العربية السعودية\nتعد مسألة الحصول على الجنسية العربية السعودية من أكثر الموضوعات أهمية وحساسية، حيث تخضع لنصوص نظام الجنسية العربية السعودية الصادر بالمرسوم الملكي ولوائحه التنفيذية المحدثة.\n\nيستند التقييم الأولي لطلبات التجنيس للأجانب والمقيمين إلى نظام النقاط المحتسب من **33 نقطة** وفق **المادة التاسعة** من اللائحة التنفيذية، حيث يشترط لتحويل الملف إلى اللجنة المختصة حصول المتقدم على **23 نقطة على الأقل**.\n\n---\n\n### جدول توزيع نقاط التجنيس (المادة 9)\n\n1. **سنوات الإقامة النظامية المتصلة (10 نقاط حد أقصى):**\n   - الإقامة في المملكة لمدة لا تقل عن 10 سنوات متصلة يمنح المتقدم 10 نقاط كاملة.\n   - يلزم تقديم إثبات إقامة سارية المفعول وسجل إقامة خالي من الانقطاعات غير النظامية.\n\n2. **المؤهل العلمي والتخصص الاستثنائي (13 نقطة حد أقصى):**\n   - شهادة الدكتوراه في الطب أو الهندسة أو العلوم التقنية والدقيقة: **13 نقطة**.\n   - شهادة الدكتوراه في التخصصات العلمية الأخرى: **10 نقاط**.\n   - شهادة الماجستير: **8 نقاط**.\n   - شهادة البكالوريوس: **5 نقاط**.\n\n3. **الروابط القرابية والعائلية السعودية (10 نقاط حد أقصى):**\n   - إذا كان الأب سعودياً: **3 نقاط**.\n   - إذا كانت الأم سعودية: **3 نقاط**.\n   - إذا كانت الزوجة سعودية أو والد الزوجة سعودياً: **2 نقطتان**.\n   - إذا كان للمتقدم أبناء وبنات سعوديون: **2 نقطتان**.\n\n---\n\n### تجنيس الكفاءات والعلماء والأطباء بموجب الأمر الملكي\nبجانب نظام النقاط العادي، أتاح القرار السامي الكريم منح الجنسية العربية السعودية للكفاءات الاستثنائية والعلماء والخبراء والمبتكرين في مجالات الذكاء الاصطناعي، الطب المتقدم، الطاقة، والتقنية الحديثة، وذلك ترسيخاً لرؤية المملكة 2030.\n\n### دور مكتب الوسام الذهبي في دعم ملفك\nيتولى **المستشار أبو خالد** حصر المؤهلات والشهادات، حساب النقاط بدقة متناهية، صياغة السيرة الإنجازية والتقارير القانونية المؤيدة، ومتابعة القيد لدى الجهات الرسمية لضمان قبول الملف من المرة الأولى.`
     },
     {
       id: "art-2",
@@ -128,27 +106,7 @@ const initialData = {
       readTime: "8 دقائق",
       image: "saudi_government_documentation_and_marriage_certificate_stamping_desk_luxury",
       summary: "الضوابط الشرعية والنظامية لاستخراج موافقة الزواج من الإمارة ووزارة الداخلية، واستثناءات العمر، والمستندات المطلوبة للطرفين.",
-      content: `### التقديم على تصريح الزواج في السعودية
-ينظم قرار وزارة الداخلية الصادر بشأن ضوابط زواج السعوديين بغير سعوديات (أو المواطنات بأجانب) القواعد الإجرائية والأنظمة التي تضمن حقوق الأسرة والمواليد والاستقرار الاجتماعي.
-
----
-
-### الشروط الأساسية للراغبين في الزواج من أجنبية مقيمة:
-1. **الحد الأدنى لسن الزوج:** أن لا يقل عمر المواطن عن 30 عاماً ولا يزيد عن 70 عاماً (ويستثنى من سن الـ 30 إلى 25 عاماً في حال وجود قرابة درجة أولى مثبتة بالصكوك الشرعية).
-2. **الحالة الاجتماعية:** ألا يكون متزوجاً من مواطنة سعودية، إلا إذا ثبت بتقارير طبية رسمية صادرة من مستشفى حكومي عجز الزوجة الأولى عن الإنجاب أو المعاشرة، أو كونها مطلقة أو متوفاة.
-3. **القدرة المالية والسكن:** تقديم شهادة تعريف بالراتب موثقة من الغرفة التجارية أو سجل تجاري معتمد يثبت كفاية الدخل.
-4. **الفحص الطبي لخلو الأمراض:** خضوع الطرفين للفحص الطبي المعتمد للزواج في المراكز الصحية المعتمدة.
-5. **الصحيفة الجنائية (خلو السوابق):** خلو صحيفة الطرف الأجنبي من أية قضايا أو مخالفات أمنية.
-
----
-
-### خطوات تصريح الزواج من الخارج (تصريح مفتوح لكافة الدول):
-- تقديم الاستدعاء والمعاريض للإمارة التابع لها سكن المواطن.
-- تحويل المعاملة للشرطة والأدلة الجنائية لإتمام المعالجة الأمنية.
-- دراسة الطلب لدى قسم الزواجات بالإمارة ثم الرفع لوزارة الداخلية.
-- صدور الموافقة الرسمية وإحالتها لسفارة المملكة في بلد الزوجة أو للمحكمة الشرعية/ناجز لإتمام عقد النكاح.
-
-مع **مكتب الوسام الذهبي**، تضمن صياغة المعروض بالشكل الذي يعزز قبول الطلب وتفادي أسباب الرفض أو الإحالة السلبية.`
+      content: `### التقديم على تصريح الزواج في السعودية\nينظم قرار وزارة الداخلية الصادر بشأن ضوابط زواج السعوديين بغير سعوديات (أو المواطنات بأجانب) القواعد الإجرائية والأنظمة التي تضمن حقوق الأسرة والمواليد والاستقرار الاجتماعي.\n\n---\n\n### الشروط الأساسية للراغبين في الزواج من أجنبية مقيمة:\n1. **الحد الأدنى لسن الزوج:** أن لا يقل عمر المواطن عن 30 عاماً ولا يزيد عن 70 عاماً (ويستثنى من سن الـ 30 إلى 25 عاماً في حال وجود قرابة درجة أولى مثبتة بالصكوك الشرعية).\n2. **الحالة الاجتماعية:** ألا يكون متزوجاً من مواطنة سعودية، إلا إذا ثبت بتقارير طبية رسمية صادرة من مستشفى حكومي عجز الزوجة الأولى عن الإنجاب أو المعاشرة، أو كونها مطلقة أو متوفاة.\n3. **القدرة المالية والسكن:** تقديم شهادة تعريف بالراتب موثقة من الغرفة التجارية أو سجل تجاري معتمد يثبت كفاية الدخل.\n4. **الفحص الطبي لخلو الأمراض:** خضوع الطرفين للفحص الطبي المعتمد للزواج في المراكز الصحية المعتمدة.\n5. **الصحيفة الجنائية (خلو السوابق):** خلو صحيفة الطرف الأجنبي من أية قضايا أو مخالفات أمنية.\n\n---\n\n### خطوات تصريح الزواج من الخارج (تصريح مفتوح لكافة الدول):\n- تقديم الاستدعاء والمعاريض للإمارة التابع لها سكن المواطن.\n- تحويل المعاملة للشرطة والأدلة الجنائية لإتمام المعالجة الأمنية.\n- دراسة الطلب لدى قسم الزواجات بالإمارة ثم الرفع لوزارة الداخلية.\n- صدور الموافقة الرسمية وإحالتها لسفارة المملكة في بلد الزوجة أو للمحكمة الشرعية/ناجز لإتمام عقد النكاح.\n\nمع **مكتب الوسام الذهبي**، تضمن صياغة المعروض بالشكل الذي يعزز قبول الطلب وتفادي أسباب الرفض أو الإحالة السلبية.`
     },
     {
       id: "art-3",
@@ -161,18 +119,7 @@ const initialData = {
       readTime: "5 دقائق",
       image: "saudi_civil_affairs_and_family_registry_document_verification_modern_riyadh",
       summary: "كيف تنهي معاملة تصحيح وضع الزواج القائم دون الحصول على موافقة مسبقة، وتستخرج سجل الأسرة وصك النكاح الإلكتروني.",
-      content: `### ما هو تصحيح وضع الزواج؟
-في بعض الحالات، يقدم المواطن على عقد نكاح شرعي خارج المملكة أو داخلها دون الحصول أولاً على تصريح زواج رسمي من وزارة الداخلية. يترتب على ذلك عدم إمكانية إستخراج صك نكاح إلكتروني عبر منصة ناجز أو إضافة الزوجة والأبناء في سجل الأسرة لدى الأحوال المدنية.
-
----
-
-### آلية التصحيح النظامي المعتمَدة:
-1. **إعداد طلب الاستثناء والتصحيح:** تقديم ملف متكامل يشرح ظروف الزواج، مدة العشرة، ووجود أطفال، مع تصديق كافة وثائق عقد الزواج العرفي/الخارجي من وزارة الخارجية والسفارة السعودية.
-2. **العرض على اللجنة الإقليمية بالإمارة:** مراجعة اللجنة الخاصة بدراسة الزواجات غير المصرح بها وإبداء الرأي الإيجابي.
-3. **إحالة الملف لمحكمة الأحوال الشخصية:** صدور الحكم الشرعي بإثبات النكاح وتوثيقه الإلكتروني عبر منصة ناجز.
-4. **تحديث البيانات في أبشر والأحوال المدنية:** استخراج صك عقد الزواج الرسمي وسجل الأسرة وإضافة الأبناء فوراً.
-
-نحن في **الوسام الذهبي** نتابع هذه المعاملة الحساسة خطوة بخطوة لمنع تضرر الأبناء وتأمين كافة حقوقهم النظامية.`
+      content: `### ما هو تصحيح وضع الزواج؟\nفي بعض الحالات، يقدم المواطن على عقد نكاح شرعي خارج المملكة أو داخلها دون الحصول أولاً على تصريح زواج رسمي من وزارة الداخلية. يترتب على ذلك عدم إمكانية إستخراج صك نكاح إلكتروني عبر منصة ناجز أو إضافة الزوجة والأبناء في سجل الأسرة لدى الأحوال المدنية.\n\n---\n\n### آلية التصحيح النظامي المعتمَدة:\n1. **إعداد طلب الاستثناء والتصحيح:** تقديم ملف متكامل يشرح ظروف الزواج، مدة العشرة، ووجود أطفال، مع تصديق كافة وثائق عقد الزواج العرفي/الخارجي من وزارة الخارجية والسفارة السعودية.\n2. **العرض على اللجنة الإقليمية بالإمارة:** مراجعة اللجنة الخاصة بدراسة الزواجات غير المصرح بها وإبداء الرأي الإيجابي.\n3. **إحالة الملف لمحكمة الأحوال الشخصية:** صدور الحكم الشرعي بإثبات النكاح وتوثيقه الإلكتروني عبر منصة ناجز.\n4. **تحديث البيانات في أبشر والأحوال المدنية:** استخراج صك عقد الزواج الرسمي وسجل الأسرة وإضافة الأبناء فوراً.\n\nنحن في **الوسام الذهبي** نتابع هذه المعاملة الحساسة خطوة بخطوة لمنع تضرر الأبناء وتأمين كافة حقوقهم النظامية.`
     }
   ],
   faqs: [
@@ -267,11 +214,12 @@ if (!fs.existsSync(UPLOADS_DIR)) {
   fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 }
 
-// Data Store Controller
 class DataStore {
   constructor() {
     this.data = initialData;
+    this.mongoConnected = false;
     this.loadData();
+    this.initMongoConnection();
   }
 
   loadData() {
@@ -288,7 +236,7 @@ class DataStore {
         this.saveData();
       }
     } catch (err) {
-      console.error("Error reading data file, using initial data:", err.message);
+      console.error("Error reading data.json file:", err.message);
     }
   }
 
@@ -296,7 +244,90 @@ class DataStore {
     try {
       fs.writeFileSync(DB_FILE, JSON.stringify(this.data, null, 2), 'utf8');
     } catch (err) {
-      console.error("Error writing data file:", err.message);
+      console.error("Error writing data.json file:", err.message);
+    }
+  }
+
+  async initMongoConnection() {
+    const mongoUri = process.env.MONGODB_URI;
+    if (!mongoUri || mongoUri.includes('<db_username>')) {
+      console.log('⚠️ [MongoDB] Connection string contains placeholder <db_username>. Waiting for user to substitute database username in .env file.');
+      return;
+    }
+
+    try {
+      console.log('🔄 [MongoDB] Connecting to MongoDB Cluster...');
+      await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 5000 });
+      this.mongoConnected = true;
+      console.log('✅ [MongoDB] Connected successfully to MongoDB!');
+      await this.syncDataToMongo();
+    } catch (err) {
+      console.error('❌ [MongoDB] Connection failed:', err.message);
+      this.mongoConnected = false;
+    }
+  }
+
+  async syncDataToMongo() {
+    if (!this.mongoConnected) return;
+    try {
+      console.log('🚀 [MongoDB] Syncing & Importing local data into MongoDB...');
+
+      // Applications
+      const appCount = await ApplicationModel.countDocuments();
+      if (appCount === 0 && this.data.applications.length > 0) {
+        await ApplicationModel.insertMany(this.data.applications);
+        console.log(`  -> Imported ${this.data.applications.length} Applications into MongoDB`);
+      } else if (appCount > 0) {
+        const mongoApps = await ApplicationModel.find().lean();
+        this.data.applications = mongoApps.map(a => { delete a._id; delete a.__v; return a; });
+      }
+
+      // Articles
+      const artCount = await ArticleModel.countDocuments();
+      if (artCount === 0 && this.data.articles.length > 0) {
+        await ArticleModel.insertMany(this.data.articles);
+        console.log(`  -> Imported ${this.data.articles.length} Articles into MongoDB`);
+      } else if (artCount > 0) {
+        const mongoArts = await ArticleModel.find().lean();
+        this.data.articles = mongoArts.map(a => { delete a._id; delete a.__v; return a; });
+      }
+
+      // FAQs
+      const faqCount = await FaqModel.countDocuments();
+      if (faqCount === 0 && this.data.faqs.length > 0) {
+        await FaqModel.insertMany(this.data.faqs);
+        console.log(`  -> Imported ${this.data.faqs.length} FAQs into MongoDB`);
+      } else if (faqCount > 0) {
+        const mongoFaqs = await FaqModel.find().lean();
+        this.data.faqs = mongoFaqs.map(f => { delete f._id; delete f.__v; return f; });
+      }
+
+      // Services
+      const srvCount = await ServiceModel.countDocuments();
+      if (srvCount === 0 && this.data.customServices.length > 0) {
+        await ServiceModel.insertMany(this.data.customServices);
+        console.log(`  -> Imported ${this.data.customServices.length} Services into MongoDB`);
+      } else if (srvCount > 0) {
+        const mongoSrvs = await ServiceModel.find().lean();
+        this.data.customServices = mongoSrvs.map(s => { delete s._id; delete s.__v; return s; });
+      }
+
+      // Site Settings
+      const settingsDoc = await SiteSettingsModel.findOne();
+      if (!settingsDoc) {
+        await SiteSettingsModel.create(this.data.siteSettings);
+        console.log('  -> Imported SiteSettings into MongoDB');
+      } else {
+        const settingsObj = settingsDoc.toObject();
+        delete settingsObj._id;
+        delete settingsObj.__v;
+        this.data.siteSettings = settingsObj;
+      }
+
+      this.saveData();
+      console.log('✨ [MongoDB] Full Data Import & Synchronization Completed!');
+    } catch (err) {
+      console.error('❌ Error during Mongo sync:', err.message);
     }
   }
 
@@ -346,6 +377,11 @@ class DataStore {
 
     this.data.applications.unshift(newApp);
     this.saveData();
+
+    if (this.mongoConnected) {
+      ApplicationModel.create(newApp).catch(err => console.error('Mongo save application error:', err));
+    }
+
     return newApp;
   }
 
@@ -367,6 +403,11 @@ class DataStore {
     });
 
     this.saveData();
+
+    if (this.mongoConnected) {
+      ApplicationModel.findOneAndUpdate({ id: id }, app, { upsert: true }).catch(err => console.error('Mongo update application error:', err));
+    }
+
     return app;
   }
 
@@ -375,6 +416,9 @@ class DataStore {
     this.data.applications = this.data.applications.filter(a => a.id !== id);
     if (this.data.applications.length !== initialLen) {
       this.saveData();
+      if (this.mongoConnected) {
+        ApplicationModel.deleteOne({ id: id }).catch(err => console.error('Mongo delete application error:', err));
+      }
       return true;
     }
     return false;
@@ -407,6 +451,11 @@ class DataStore {
 
     this.data.articles.unshift(newArt);
     this.saveData();
+
+    if (this.mongoConnected) {
+      ArticleModel.create(newArt).catch(err => console.error('Mongo save article error:', err));
+    }
+
     return newArt;
   }
 
@@ -415,6 +464,9 @@ class DataStore {
     this.data.articles = this.data.articles.filter(a => a.id !== id && a.slug !== id);
     if (this.data.articles.length !== initialLen) {
       this.saveData();
+      if (this.mongoConnected) {
+        ArticleModel.deleteOne({ $or: [{ id: id }, { slug: id }] }).catch(err => console.error('Mongo delete article error:', err));
+      }
       return true;
     }
     return false;
@@ -444,6 +496,11 @@ class DataStore {
     };
     this.data.faqs.push(newFaq);
     this.saveData();
+
+    if (this.mongoConnected) {
+      FaqModel.create(newFaq).catch(err => console.error('Mongo save faq error:', err));
+    }
+
     return newFaq;
   }
 
@@ -453,6 +510,9 @@ class DataStore {
     this.data.faqs = this.data.faqs.filter(f => f.id !== numericId && f.id !== id);
     if (this.data.faqs.length !== initialLen) {
       this.saveData();
+      if (this.mongoConnected) {
+        FaqModel.deleteOne({ id: id }).catch(err => console.error('Mongo delete faq error:', err));
+      }
       return true;
     }
     return false;
@@ -469,6 +529,11 @@ class DataStore {
       ...newSettings
     };
     this.saveData();
+
+    if (this.mongoConnected) {
+      SiteSettingsModel.findOneAndUpdate({}, this.data.siteSettings, { upsert: true }).catch(err => console.error('Mongo update settings error:', err));
+    }
+
     return this.data.siteSettings;
   }
 
@@ -532,6 +597,11 @@ class DataStore {
     if (!this.data.customServices) this.data.customServices = [];
     this.data.customServices.unshift(newService);
     this.saveData();
+
+    if (this.mongoConnected) {
+      ServiceModel.create(newService).catch(err => console.error('Mongo save service error:', err));
+    }
+
     return newService;
   }
 
@@ -541,6 +611,9 @@ class DataStore {
     this.data.customServices = this.data.customServices.filter(s => s.id !== id);
     if (this.data.customServices.length !== initialLen) {
       this.saveData();
+      if (this.mongoConnected) {
+        ServiceModel.deleteOne({ id: id }).catch(err => console.error('Mongo delete service error:', err));
+      }
       return true;
     }
     return false;
@@ -548,5 +621,3 @@ class DataStore {
 }
 
 module.exports = new DataStore();
-
-
